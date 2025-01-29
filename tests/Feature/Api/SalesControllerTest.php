@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use Tests\TestCase;
 use App\Models\Sale;
 use App\Models\User;
+use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SalesControllerTest extends TestCase
@@ -30,20 +31,22 @@ class SalesControllerTest extends TestCase
 
         $data = json_decode($response->getContent(), true);
 
-        $this->assertCount(5, $data);
+        $this->assertCount(5, $data['data']);
     }
 
     public function test_auth_user_can_record_new_sale()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
+        $product = Product::factory()->create();
 
         $response = $this->json(
             'POST',
             'api/sales',
             [
-                'quantity' => 5,
-                'unit_cost' => 10,
+                'product_id'   => $product->id,
+                'quantity'     => 5,
+                'unit_cost'    => 10,
                 'selling_cost' => 15.88
             ]
         )->assertStatus(200);
@@ -53,9 +56,9 @@ class SalesControllerTest extends TestCase
         $this->assertEquals('Order created successfully', $data['message']);
 
         $this->assertDatabaseHas('sales', [
-            'user_id' => $user->id,
-            'quantity' => 5,
-            'unit_cost' => 10,
+            'user_id'      => $user->id,
+            'quantity'     => 5,
+            'unit_cost'    => 10,
             'selling_cost' => 15.88
         ]);
     }
@@ -73,8 +76,8 @@ class SalesControllerTest extends TestCase
             ]
         )->assertStatus(422)
             ->assertJsonFragment([
-                'quantity' => ['The quantity field is required.'],
-                'unit_cost' => ['The unit cost field is required.'],
+                'quantity'     => ['The quantity field is required.'],
+                'unit_cost'    => ['The unit cost field is required.'],
                 'selling_cost' => ['The selling cost field is required.']
             ]);
     }
@@ -88,8 +91,8 @@ class SalesControllerTest extends TestCase
             'POST',
             'api/sales',
             [
-                'quantity' => 1.2,
-                'unit_cost' => 10,
+                'quantity'     => 1.2,
+                'unit_cost'    => 10,
                 'selling_cost' => 15.88
             ]
         )->assertStatus(422)
@@ -107,13 +110,33 @@ class SalesControllerTest extends TestCase
             'POST',
             'api/sales',
             [
-                'quantity' => 1,
-                'unit_cost' => 'not numeric number',
+                'quantity'     => 1,
+                'unit_cost'    => 'not numeric number',
                 'selling_cost' => 15.88
             ]
         )->assertStatus(422)
             ->assertJsonFragment([
                 'unit_cost' => ['The unit cost field must be a number.']
+            ]);
+    }
+
+    public function test_validation_fails_if_product_id_not_in_products()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->json(
+            'POST',
+            'api/sales',
+            [
+                'product_id'   => 3,
+                'quantity'     => 5,
+                'unit_cost'    => 10,
+                'selling_cost' => 15.88
+            ]
+        )->assertStatus(422)
+            ->assertJsonFragment([
+                'product_id' => ['The selected product id is invalid.']
             ]);
     }
 }

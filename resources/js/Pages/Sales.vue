@@ -11,15 +11,16 @@ import {computed, onMounted, ref} from "vue"
 
 const quantity = ref(0);
 const unitPrice = ref(0);
+const selectedProduct = ref(null);
 
 const props = defineProps({
-    markup: {
-        type: Number,
-        required: 0,
+    products: {
+        type: Object,
+        required: true,
     },
     shipping: {
         type: Number,
-        default: 0,
+        default: true,
     },
 })
 
@@ -41,7 +42,7 @@ const sellingPrice = computed(() => {
     }
 
     let totalCost = parseFloat(quantity.value * unitPrice.value);
-    let sellingPrice = (totalCost / (1 - props.markup)) + props.shipping;
+    let sellingPrice = (totalCost / (1 - selectedProduct.value.markup)) + props.shipping;
     let rounded = Math.ceil(sellingPrice * 100) / 100;
     return rounded.toFixed(2)
 })
@@ -51,6 +52,7 @@ const recordSale = () => {
         quantity: quantity.value,
         unit_cost: unitPrice.value,
         selling_cost: sellingPrice.value,
+        product_id: selectedProduct.value.id,
     }).then(() => {
         quantity.value = 0;
         unitPrice.value = 0;
@@ -62,6 +64,7 @@ const recordSale = () => {
 }
 
 onMounted(() => {
+    selectedProduct.value = props.products.data[0];
     getSales();
 })
 
@@ -69,7 +72,7 @@ const sales = ref([]);
 
 const getSales = () => {
     window.axios.get('/api/sales').then((response) => {
-        sales.value = response.data;
+        sales.value = response.data.data;
     });
 }
 
@@ -88,7 +91,20 @@ const getSales = () => {
         </template>
 
         <PanelTemplate>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
+                <div>
+                    <InputLabel>Select a product</InputLabel>
+                    <select v-model="selectedProduct">
+                        <option v-for="product in products.data"
+                                :key="'product-' + product.id"
+                                :value="product"
+                                @change="selectedProduct = product"
+                        >
+                            {{ product.name }}
+                        </option>
+                    </select>
+                </div>
+
                 <div>
                     <InputLabel>Quantity</InputLabel>
                     <TextInput v-model.number="quantity"></TextInput>
@@ -138,7 +154,7 @@ const getSales = () => {
                 </thead>
                 <tbody>
                 <tr v-for="sale in sales" :key="sale.id">
-                    <td>{{ sale.product_name }}</td>
+                    <td>{{ sale.product.name }}</td>
                     <td>{{ sale.quantity }}</td>
                     <td>£{{ sale.unit_cost }}</td>
                     <td>£{{ sale.selling_cost }}</td>

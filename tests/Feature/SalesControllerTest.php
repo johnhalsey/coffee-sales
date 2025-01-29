@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Product;
+use App\Http\Resources\ProductResource;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -22,13 +24,18 @@ class SalesControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $this->get('sales')
+        Product::factory(5)->create();
+
+        $response = $this->get('sales')
             ->assertStatus(200)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Sales')
-                ->has('markup')
+                ->has('products')
                 ->has('shipping')
             );
+
+        $data = $response->getOriginalContent()->getData();
+        $this->assertCount(5, $data['page']['props']['products']['data']);
 
     }
 }

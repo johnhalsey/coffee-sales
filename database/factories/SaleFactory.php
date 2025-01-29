@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,7 +22,9 @@ class SaleFactory extends Factory
             'user_id' => function () {
                 return User::factory()->create()->id;
             },
-            'product_name' => 'Gold Coffee',
+            'product_id' => function () {
+                return Product::factory()->create()->id;
+            },
             'quantity' => $this->faker->randomDigit(),
             'unit_cost' => $this->faker->randomFloat(2, 1, 100),
             'selling_cost' => $this->faker->randomFloat(2, 1, 100),

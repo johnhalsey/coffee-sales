@@ -33,3 +33,15 @@ Here you can calcluate the cost of GOLD coffee, and record new sales.
 ## Testing
 
 To run the tests, run `php artisan test`
+
+### Decsisions made during development
+
+Phase 1:
+- I decided on using `php artisan serve` instead of Docker for ease/speed.
+- I put the product in an Enum instead of a Databse table, as it was only 1 product I felt like a table for 1 product was overkill.
+
+Phase 2:
+- I moved the products to a table, and added a foreign key to the sales table.
+- I decided to send the products through to the Sales.vue file as a prop, instead of making a seperate api request since its only 2 products, that small extra query on page load was worth it, to ensure the products were there as soon as the page loaded.
+- I put the order in an api request because thinking ahead, if there are many sales, tens or hundreads, it will likely be paginated, or may take slightly longer to load, in which case, a loading state could be added to the Vue file for a better UX.
+
