@@ -2,14 +2,15 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\User;
-use App\Models\Sale;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Sale;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SalesControllerTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_auth_user_can_index_their_sales()
     {
         $user = User::factory()->create();

@@ -5,9 +5,12 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SalesControllerTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_guest_cannot_access_sales_page()
     {
         $this->get('sales')
