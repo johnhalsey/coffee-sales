@@ -1,6 +1,8 @@
 # Coffee ☕️ Sales
 
-Laravel application to calculate the selling cost of coffee based on the quantity and unit proce, and a percdentage markup plus shipping. 
+Laravel application to calculate the selling cost of coffee based on the quantity and unit price, and a percentage markup plus shipping. 
+
+This was originally part of a technical test, (https://github.com/johnhalsey/coffee-sales/blob/main/Laravel%20Tech%20Task%20v1.0.pdf)[here are the instructions.]
 
 It will also record the sales and display the sales history.
 
